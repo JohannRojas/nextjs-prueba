@@ -4,35 +4,40 @@ import { UserType } from '@/app/usuario/consulta/user.interface'
 import { capitalize, formatDate } from '@/utils/utils'
 import { Table } from 'flowbite-react'
 import Link from 'next/link'
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { ModalConfirm } from './modals/ModalConfirm'
 import { SuccessModal } from './modals/SuccessModal'
 
-async function deleteUser(id: string) {
-  await fetch(`https://nest-prueba-tecnica-production.up.railway.app/api/v1/users/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-    .then((res) => res)
-    .catch((error) => console.error("Error:", error))
-    .then((response) => console.log("Success:", response))
 
-}
-
-interface Props {
-  users: UserType[]
-}
-
-export const CustomGrid = ({ users, }: Props) => {
+export const CustomGrid = () => {
 
   const [openModal, setOpenModal] = useState<boolean>(false)
   const [succesModal, setSuccesModal] = useState(false)
+  const [idToDelete, setIdToDelete] = useState<string>('')
 
-  const deleteUsuario = async (id: string) => {
-    await deleteUser(id).then(() => { setOpenModal(false); setSuccesModal(true) })
+  const [users, setUsers] = useState<UserType[]>([])
+
+  async function getUsers() {
+    const res = await fetch('https://nest-prueba-tecnica-production.up.railway.app/api/v1/users')
+
+    if (!res.ok) {
+      throw new Error('Something went wrong')
+    }
+    return res.json()
   }
+
+
+  useEffect(() => {
+    getUsers()
+      .then(res => {
+        setUsers(res)
+      })
+      .catch(err => console.log(err))
+
+    return () => {
+      setUsers([])
+    }
+  }, [])
 
   return (
     <div className="overflow-x-auto mt-10">
@@ -68,13 +73,14 @@ export const CustomGrid = ({ users, }: Props) => {
                     </Link>
                   </Table.Cell>
                   <Table.Cell>
-                    <button className="font-medium text-cyan-600 hover:underline dark:text-cyan-500" onClick={ () => setOpenModal(true) }>
+                    <button className="font-medium text-cyan-600 hover:underline dark:text-cyan-500" onClick={ () => {
+                      setOpenModal(true)
+                      setIdToDelete(user._id)
+                    } }>
                       Delete
                     </button>
                   </Table.Cell>
                 </Table.Row>
-                <ModalConfirm message='Esta seguro de borrar este usuario' onConfirm={ () => deleteUsuario(user._id) } openModal={ openModal } setOpenModal={ setOpenModal } key={ `modal-${user._id}` } />
-                <SuccessModal openModal={ succesModal } setOpenModal={ setSuccesModal } message={ 'Usuario borrado correctamente' } />
 
               </Fragment>
             ))
@@ -83,6 +89,8 @@ export const CustomGrid = ({ users, }: Props) => {
 
         </Table.Body>
       </Table>
+      <ModalConfirm id={ idToDelete } message='Esta seguro de borrar este usuario' openModal={ openModal } setOpenModal={ setOpenModal } />
+      <SuccessModal openModal={ succesModal } setOpenModal={ setSuccesModal } message={ 'Usuario borrado correctamente' } />
     </div>
   )
 }

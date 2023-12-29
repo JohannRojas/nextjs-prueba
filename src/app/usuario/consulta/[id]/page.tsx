@@ -1,7 +1,7 @@
 'use client'
 
 import { Form } from '@/components/Form'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface EditUserType {
   name: string,
@@ -26,6 +26,7 @@ async function editUser(body: EditUserType, id: string) {
 }
 
 
+
 export default function EditUsuario({ params }: { params: { id: string } }) {
 
   const [name, setName] = useState<string>('')
@@ -33,6 +34,14 @@ export default function EditUsuario({ params }: { params: { id: string } }) {
   const [gender, setGender] = useState<string>('')
 
 
+  async function getUser(id: string) {
+    const res = await fetch(`https://nest-prueba-tecnica-production.up.railway.app/api/v1/users/${id}`)
+    if (!res.ok) {
+      throw new Error('Something went wrong')
+    }
+    return res.json()
+
+  }
   const resetForm = () => {
     setName('')
     setBirthday((new Date().toDateString()))
@@ -49,6 +58,16 @@ export default function EditUsuario({ params }: { params: { id: string } }) {
 
     resetForm()
   }
+
+  useEffect(() => {
+
+    getUser(params.id).then((res) => {
+      setName(res.name)
+      setBirthday(new Date(res.birthday).toDateString())
+      setGender(res.gender)
+    })
+
+  }, [])
 
 
   return (

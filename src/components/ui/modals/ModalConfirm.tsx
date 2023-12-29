@@ -4,11 +4,24 @@ import { HiOutlineExclamationCircle } from 'react-icons/hi'
 interface Props {
   openModal: boolean,
   setOpenModal: (value: boolean) => void
-  onConfirm: () => void
+  id: string
   message: string
 }
 
-export const ModalConfirm = ({ message, openModal, setOpenModal, onConfirm }: Props) => {
+export const ModalConfirm = ({ message, openModal, setOpenModal, id }: Props) => {
+
+
+  async function deleteUser(id: string) {
+
+    const res = await fetch(`https://nest-prueba-tecnica-production.up.railway.app/api/v1/users/${id}`, {
+      method: 'DELETE',
+    })
+
+    if (!res.ok) {
+      throw new Error('Something went wrong')
+    }
+    return res.status
+  }
 
   return (
     <Modal show={ openModal } size="md" onClose={ () => setOpenModal(false) } popup>
@@ -21,8 +34,9 @@ export const ModalConfirm = ({ message, openModal, setOpenModal, onConfirm }: Pr
           </h3>
           <div className="flex justify-center gap-4">
             <Button color="failure" onClick={ () => {
-              onConfirm()
+              deleteUser(id)
               setOpenModal(false)
+
             } }>
               { "Si, estoy seguro" }
             </Button>
