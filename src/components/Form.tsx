@@ -26,7 +26,7 @@ export const Form = ({ handleSubmit, properties, setName, setBirthdate, setGende
       <form
         onSubmit={ handleSubmit }
         className="space-y-6" action="#">
-        <h5 className="text-xl font-medium text-gray-900 dark:text-white">Registra un nuevo usuario</h5>
+        <h5 className="text-xl font-medium text-gray-900 dark:text-white">Registra un usuario</h5>
         <CustomInput setName={ setName } value={ properties.name } />
         <CustomDatePicker setValue={ setBirthdate } value={ properties.birthday } />
         <CustomDropdown value={ properties.gender } setValue={ setGender } />
